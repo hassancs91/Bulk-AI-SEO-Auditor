@@ -1,32 +1,14 @@
-import streamlit as st
-from helpers import free_seo_audit, ai_analysis,api_seo_audit
-import json
-from textwrap import wrap
 
-def display_wrapped_json(data, width=80):
-    """
-    Display JSON data with text wrapping for improved readability.
-    """
-    def wrap_str(s):
-        return '\n'.join(wrap(s, width=width))
-    
-    def process_item(item):
-        if isinstance(item, dict):
-            return {k: process_item(v) for k, v in item.items()}
-        elif isinstance(item, list):
-            return [process_item(i) for i in item]
-        elif isinstance(item, str):
-            return wrap_str(item)
-        else:
-            return item
-    
-    wrapped_data = process_item(data)
-    st.code(json.dumps(wrapped_data, indent=2), language='json')
+import streamlit as st
+from helpers import free_seo_audit, ai_analysis,api_seo_audit,display_wrapped_json
+
+
+
 
 def main():
     st.title("Bulk AI SEO Auditor")
     
-    audit_type = st.radio("Choose audit type:", ("Free Built-in Audit", "Full API Audit (Premium)"))
+    audit_type = st.radio("Choose audit type:", ("Simple Built-in Audit", "Full API Audit"))
     
     uploaded_file = st.file_uploader("Upload a text file containing URLs (one per line)", type="txt")
     
@@ -44,7 +26,7 @@ def main():
                 status_text.text(f"Analyzing URL {i+1} of {len(urls)}: {url}")
                 
                 with st.expander(f"SEO Audit for {url}", expanded=False):
-                    if audit_type == "Free Built-in Audit":
+                    if audit_type == "Simple Built-in Audit":
                         report = free_seo_audit(url)
                     else:
                         report = api_seo_audit(url)

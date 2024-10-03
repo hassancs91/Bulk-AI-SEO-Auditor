@@ -1,15 +1,35 @@
 from typing import List
 from urllib.parse import urlparse
 from SimplerLLM.language.llm import LLM, LLMProvider
-from SimplerLLM.language.llm_addons import generate_pydantic_json_model
 from SimplerLLM.tools.rapid_api import RapidAPIClient
 from bs4 import BeautifulSoup
-from pydantic import BaseModel
 import requests
+from textwrap import wrap
+import json
+import streamlit as st
 
 llm_instance = LLM.create(provider=LLMProvider.ANTHROPIC,model_name="claude-3-haiku-20240307")
 
 
+def display_wrapped_json(data, width=80):
+    """
+    Display JSON data with text wrapping for improved readability.
+    """
+    def wrap_str(s):
+        return '\n'.join(wrap(s, width=width))
+    
+    def process_item(item):
+        if isinstance(item, dict):
+            return {k: process_item(v) for k, v in item.items()}
+        elif isinstance(item, list):
+            return [process_item(i) for i in item]
+        elif isinstance(item, str):
+            return wrap_str(item)
+        else:
+            return item
+    
+    wrapped_data = process_item(data)
+    st.code(json.dumps(wrapped_data, indent=2), language='json')
 
 def free_seo_audit(url):
     try:
